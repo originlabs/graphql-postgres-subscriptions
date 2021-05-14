@@ -29,6 +29,19 @@ class PostgresPubSub extends PubSub {
     this.connected = false;
   }
 
+  /**
+   * @returns
+   * Rejects with the sooner of
+   *   1. pg-listen's initial `connect` failing for an exotic (i.e., non-ECONNREFUSED)
+   *      reason.
+   *   2. pg-listen emitting 'error', likely indicating initial connection failed
+   *      even after repeated attempts.
+   *   3. Connection to the database was initially successful, but at least one
+   *      `LISTEN` query failed.
+   *
+   * Fulfills otherwise, indicating all of the requested triggers are now being
+   * listened to.
+   */
   connect() {
     return new Promise(async (resolve, reject) => {
       this.pgListen.events.once('connected', () => {
