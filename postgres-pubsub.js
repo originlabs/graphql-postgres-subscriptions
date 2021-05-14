@@ -35,11 +35,12 @@ class PostgresPubSub extends PubSub {
     // but then it will retry and emit a `connected` event if it later connects
     // see https://github.com/andywer/pg-listen/issues/32
     // so we put logic on the `connected` event
-    this.pgListen.events.on('connected', async () => {
-      await Promise.all(this.triggers.map((eventName) => {
+    this.pgListen.events.on('connected', () => {
+      Promise.all(this.triggers.map((eventName) => {
         return this.pgListen.listenTo(eventName);
-      }));
-      this.connected = true;
+      })).then(() => {
+        this.connected = true;
+      });
     });
     try {
       await this.pgListen.connect();
