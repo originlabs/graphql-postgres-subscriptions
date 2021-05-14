@@ -31,12 +31,12 @@ class PostgresPubSub extends PubSub {
 
   /**
    * @returns
-   * Rejects with the sooner of
-   *   1. pg-listen's initial `connect` failing for an exotic (i.e., non-ECONNREFUSED)
+   * Rejects when any of the following occur:
+   *   1. pg-listen's initial `connect` fails for an exotic (i.e., non-ECONNREFUSED)
    *      reason.
-   *   2. pg-listen emitting 'error', likely indicating initial connection failed
+   *   2. pg-listen emits 'error', likely indicating initial connection failed
    *      even after repeated attempts.
-   *   3. Connection to the database was initially successful, but at least one
+   *   3. Connection to the database was successful, but at least one
    *      `LISTEN` query failed.
    *
    * Fulfills otherwise, indicating all of the requested triggers are now being
