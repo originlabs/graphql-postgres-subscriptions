@@ -13,7 +13,7 @@ describe("PostgresPubSub", () => {
     }).then(() => {
       const succeed = ps.publish("a", "test");
       expect(succeed).resolves.toBe(true);
-    });
+    }).catch(done);
   });
 
   test("PostgresPubSub can subscribe and is called when events happen", async function(done) {
@@ -25,7 +25,7 @@ describe("PostgresPubSub", () => {
     }).then(() => {
       const succeed = ps.publish("a", "test");
       expect(succeed).resolves.toBe(true);
-    });
+    }).catch(done);
   });
 
   test("PostgresPubSub can subscribe when instantiated with connection options but without a client", async function(done) {
@@ -39,7 +39,7 @@ describe("PostgresPubSub", () => {
     }).then(() => {
       const succeed = ps.publish("a", "test");
       expect(succeed).resolves.toBe(true);
-    });
+    }).catch(done);
   });
 
   test("PostgresPubSub can unsubscribe", async function(done) {
@@ -54,7 +54,7 @@ describe("PostgresPubSub", () => {
       expect(succeed).resolves.toBe(true); // True because publish success is not
       // indicated by trigger having subscriptions
       done(); // works because pubsub is synchronous
-    });
+    }).catch(done);
   });
 
   test("Should emit error when payload exceeds Postgres 8000 character limit", async (done) => {
@@ -72,7 +72,7 @@ describe("PostgresPubSub", () => {
     }).then(() => {
       const succeed = ps.publish("a", "a".repeat(9000));
       expect(succeed).resolves.toBe(true);
-    });
+    }).catch(done);
   });
 
   test("AsyncIterator should expose valid asyncIterator for a specific event", () => {
@@ -94,7 +94,7 @@ describe("PostgresPubSub", () => {
       expect(result.value).not.toBeUndefined();
       expect(result.done).not.toBeUndefined();
       done();
-    });
+    }).catch(done);
 
     ps.publish(eventName, { test: true });
   });
@@ -123,7 +123,7 @@ describe("PostgresPubSub", () => {
       spy();
       expect(spy).toHaveBeenCalled();
       done();
-    });
+    }).catch(done);
     ps.publish(eventName, { test: true });
   });
 
@@ -139,7 +139,7 @@ describe("PostgresPubSub", () => {
       expect(result.value).toEqual({ transformed: { test: true } });
       expect(result.done).toBe(false);
       done();
-    });
+    }).catch(done);
 
     ps.publish(eventName, { test: true });
   });
@@ -154,7 +154,7 @@ describe("PostgresPubSub", () => {
     }).then(() => {
       const succeed = ps.publish("transform", { test: true });
       expect(succeed).resolves.toBe(true);
-    });
+    }).catch(done);
   });
 
   // This test does not clean up after it ends. It breaks the test that follows after it.
@@ -172,7 +172,7 @@ describe("PostgresPubSub", () => {
       expect(result).not.toBeUndefined();
       expect(result.value).not.toBeUndefined();
       expect(result.done).toBe(false);
-    });
+    }).catch(done);
 
     ps.publish(eventName, { test: true });
 
@@ -183,7 +183,7 @@ describe("PostgresPubSub", () => {
       expect(result.value).toBeUndefined();
       expect(result.done).toBe(true);
       done();
-    });
+    }).catch(done);
 
     await delay(0);
 
