@@ -1,11 +1,24 @@
+arch: arm64-graviton2
+virt: lxd
+os: linux
+dist: focal
+# Note: this is required until arm64-graviton2 is "promoted"
+# source: https://blog.travis-ci.com/2020-09-11-arm-on-aws#how-to-get-started
+group: edge
+
 language: node_js
 node_js:
-- "8"
-- "6"
-sudo: required
+  - 16
+  - 14
+  - 12
+
 services:
   - docker
-before_install:
-  - docker-compose build
-script:
-  - docker-compose run test
+  - postgres
+
+env:
+  global:
+    - PGHOST=localhost
+    - PGUSER=postgres
+    - PGDATABASE=postgres
+    - PGDATABASE_URL=postgres://postgres:@localhost:5432/postgres

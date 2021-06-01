@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:12.21.0
+FROM mhart/alpine-node:16
 WORKDIR /test
 ADD . /test/
 RUN yarn
