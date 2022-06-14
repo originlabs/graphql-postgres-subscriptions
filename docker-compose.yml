@@ -21,7 +21,7 @@ services:
       - db:db
     # Unfortunately there is no reliable way to wait for postgres
     # More info: https://github.com/docker-library/postgres/issues/146
-    command: sh -c "yarn test"
+    command: sh -c "npm run test"
     environment:
       DATABASE_URL: postgres://postgres:@db:5432/postgres
       PGHOST: 'db'
