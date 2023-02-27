@@ -20,17 +20,17 @@ Afterwards replace `PubSub` with `PostgresPubSub`:
 
 ```js
 // Before
-import { PubSub } from "graphql-subscriptions-retry";
+import { PubSub } from 'graphql-subscriptions-retry';
 
 export const pubsub = new PubSub();
 ```
 
 ```js
 // After
-import { PostgresPubSub } from "graphql-postgres-subscriptions-retry";
+import { PostgresPubSub } from 'graphql-subscriptions-postgres';
 
 export const pubsub = new PostgresPubSub();
-await pubsub.connect()
+await pubsub.connect();
 ```
 
 Don't forget to await the `connect()` method, or else it will never start the connection with postgres.
@@ -47,9 +47,9 @@ You can also pass [node-postgres connection options](https://node-postgres.com/f
 
 ```js
 export const pubsub = new PostgresPubSub({
-  topics: ['a', 'b', 'c']
-})
-await pubsub.connect()
+  topics: ['a', 'b', 'c'],
+});
+await pubsub.connect();
 ```
 
 ### commonMessageHandler
@@ -68,9 +68,9 @@ const pubsub = new PostgresPubSub({ client, commonMessageHandler });
 export const resolvers = {
   Subscription: {
     somethingChanged: {
-      resolve: ({ id, dataLoader }) => dataLoader.load(id)
-    }
-  }
+      resolve: ({ id, dataLoader }) => dataLoader.load(id),
+    },
+  },
 };
 ```
 
@@ -81,10 +81,11 @@ Following how pg-listen works, `PostgresPubSub` instances have an `events` event
 ```js
 const ps = new PostgresPubSub();
 
-ps.events.on("error", err => {
-  console.log(err)
-})
+ps.events.on('error', (err) => {
+  console.log(err);
+});
 ```
+
 ## Shutdown
 
 This fork provides a new `async close():Promise<void>` method that can be called to stop the listeners and release the `pg` connection for a clean shutdown.
