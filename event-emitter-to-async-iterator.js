@@ -1,5 +1,4 @@
 // Based on https://github.com/apollographql/graphql-subscriptions/blob/master/src/event-emitter-to-async-iterator.ts
-const { $$asyncIterator } = require("iterall");
 const { EventEmitter } = require("events");
 
 function eventEmitterAsyncIterator(pgListen, eventsNames, commonMessageHandler = message => message) {
@@ -59,7 +58,7 @@ function eventEmitterAsyncIterator(pgListen, eventsNames, commonMessageHandler =
 
       return Promise.reject(error);
     },
-    [$$asyncIterator]() {
+    [Symbol.asyncIterator]() {
       return this;
     }
   };

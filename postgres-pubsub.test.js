@@ -1,6 +1,4 @@
 // Adapted from https://github.com/apollographql/graphql-subscriptions/blob/master/src/test/tests.ts
-const { isAsyncIterable } = require("iterall");
-
 const { PostgresPubSub } = require("./postgres-pubsub");
 
 describe("PostgresPubSub", () => {
@@ -73,10 +71,11 @@ describe("PostgresPubSub", () => {
 
   test("AsyncIterator should expose valid asyncIterator for a specific event", () => {
     const eventName = "test";
-    const ps = new PostgresPubSub({ topics: [eventName]});
+    const ps = new PostgresPubSub({ topics: [eventName] });
     const iterator = ps.asyncIterator(eventName);
-    expect(iterator).not.toBeUndefined();
-    expect(isAsyncIterable(iterator)).toBe(true);
+
+    expect(iterator).toBeDefined();
+    expect(iterator[Symbol.asyncIterator]()).toBe(iterator);
   });
 
   test("AsyncIterator should trigger event on asyncIterator when published", (done) => {
