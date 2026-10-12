@@ -10,6 +10,10 @@ function eventEmitterAsyncIterator(pgListen, eventsNames, commonMessageHandler =
   let listening = true;
 
   const pushValue = (event) => {
+    if (!listening) {
+      return;
+    }
+
     const value = commonMessageHandler(event);
     if (pullQueue.length !== 0) {
       pullQueue.shift()({ value, done: false });
@@ -31,6 +35,11 @@ function eventEmitterAsyncIterator(pgListen, eventsNames, commonMessageHandler =
   const emptyQueue = () => {
     if (listening) {
       listening = false;
+
+      for (const eventName of eventsArray) {
+        pgListen.notifications.off(eventName, pushValue);
+      }
+
       pullQueue.forEach(resolve => resolve({ value: undefined, done: true }));
       pullQueue.length = 0;
       pushQueue.length = 0;
