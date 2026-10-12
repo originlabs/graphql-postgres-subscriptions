@@ -211,3 +211,113 @@ describe("PostgresPubSub", () => {
     }).catch(done);
   });
 });
+
+describe("eventEmitterAsyncIterator", () => {
+  const { EventEmitter } = require("events");
+  const {
+    eventEmitterAsyncIterator
+  } = require("./event-emitter-to-async-iterator");
+
+  const makeEmitter = () => {
+    const notifications = new EventEmitter();
+    notifications.setMaxListeners(0);
+    return { notifications };
+  };
+
+  test("removes event listeners when the iterator is returned", async () => {
+    const fakePgListen = makeEmitter();
+    const it = eventEmitterAsyncIterator(
+      fakePgListen,
+      ["a", "b"],
+      message => message
+    );
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(1);
+    expect(fakePgListen.notifications.listenerCount("b")).toBe(1);
+
+    await it.return();
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(0);
+    expect(fakePgListen.notifications.listenerCount("b")).toBe(0);
+  });
+
+  test("leaves no listeners after repeated open/close cycles", async () => {
+    const fakePgListen = makeEmitter();
+
+    for (let i = 0; i < 50; i++) {
+      const it = eventEmitterAsyncIterator(
+        fakePgListen,
+        "a",
+        message => message
+      );
+
+      await it.return();
+    }
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(0);
+  });
+
+  test("does not receive events after the iterator is returned", async () => {
+    const fakePgListen = makeEmitter();
+    const it = eventEmitterAsyncIterator(
+      fakePgListen,
+      "a",
+      message => message
+    );
+
+    await it.return();
+
+    fakePgListen.notifications.emit("a", { hello: "world" });
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(0);
+    await expect(it.next()).resolves.toEqual({
+      value: undefined,
+      done: true
+    });
+  });
+
+  test("removes event listeners when the iterator throws", async () => {
+    const fakePgListen = makeEmitter();
+    const it = eventEmitterAsyncIterator(
+      fakePgListen,
+      ["a", "b"],
+      message => message
+    );
+    const error = new Error("subscription failed");
+
+    await expect(it.throw(error)).rejects.toBe(error);
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(0);
+    expect(fakePgListen.notifications.listenerCount("b")).toBe(0);
+  });
+
+  test("live iterators still receive events after other iterators close", async () => {
+    const fakePgListen = makeEmitter();
+
+    const dead = eventEmitterAsyncIterator(
+      fakePgListen,
+      "a",
+      message => message
+    );
+
+    await dead.return();
+
+    const live = eventEmitterAsyncIterator(
+      fakePgListen,
+      "a",
+      message => message
+    );
+
+    const next = live.next();
+    fakePgListen.notifications.emit("a", { hello: "world" });
+
+    await expect(next).resolves.toEqual({
+      value: { hello: "world" },
+      done: false
+    });
+
+    await live.return();
+
+    expect(fakePgListen.notifications.listenerCount("a")).toBe(0);
+  });
+});
